@@ -25,13 +25,22 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-
           <li class="nav-item">
-            <a class="nav-link" href="#"> <% if user then %>Logged in as <%= user.username %> (<a href="<%= url_for('profile-edit',{ id = user.id })%>">Profile</a>) (<a href="<%= url_for('logout') %>">Logout</a>)<% end %></a>
+            <a class="nav-link" href="<%= url_for('profile-edit',{ id = user.id })%>"><% if user then %>Hola <%= user.username %> </a>
+          </
+          <li class="nav-item">
+            <a class="nav-link" href="<%= url_for('profile-edit',{ id = user.id })%>">perfil </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<%= url_for('logout') %>">salir </a>
           </li>
 
 
+
         </ul>
+
+
+
 
       </div>
     </nav>
