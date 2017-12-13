@@ -234,8 +234,6 @@ app:match('stream-edit', config.http_prefix .. '/stream(/:id)', respond_to({
       return { render = 'stream-accounts' }
     elseif self.params.subset == 'dashboard' then
       return { render = 'stream-dashboard' }
-    elseif self.params.subset == 'dashboard2' then
-      return { render = 'stream-dashboard2' }  
     elseif self.params.subset == 'permissions' then
       return { render = 'stream-permissions' }
     elseif self.params.subset == 'advanced' then
