@@ -1,4 +1,4 @@
-<h3>Streams</h3>
+<h3>Stream</h3>
 <ul>
 <% if #streams == 0 then %>
 <li><a href="<%= url_for('stream-edit')%>">Create new stream</a></li>
@@ -7,16 +7,11 @@
 <li class="<%= v.live and 'live' or 'offline' %>"><%= v.name %><% if v.shared then %> (Shared by <%= v.shared_from %>)<% end %>:
   <ul>
     <% if (not v.shared) or (v.shared and v.metadata_level > 0) then %>
-    <li><a href="<%= url_for('stream-edit', { id = v.id }) %>?subset=dashboard">Dashboard</a></li>
+    <li><a href="<%= url_for('stream-edit', { id = v.id }) %>?subset=dashboard">Panel</a></li>
     <% end %>
 
-    <% if (not v.shared) or (v.shared and v.chat_level > 0) then %>
-    <li><a href="<%= url_for('stream-chat', { id = v.id })%>?show_picture">Chat</a></li>
-    <li><a onclick="window.open('<%= url_for('stream-chat-widget-config', { id = v.id }) %>','newwindow','width=1200,height=600'); return false;"  href="<%= url_for('stream-chat-widget-config', { id = v.id})%>">Chat Widget</a></li>
-    <% end %>
-    <% if not v.shared then %>
-    <li><a href="<%= url_for('stream-delete', { id = v.id }) %>">Delete Stream</a></li>
-    <% end %>
+
+    
   </ul></li>
 <% end %>
 <% end %>
@@ -24,11 +19,11 @@
 </ul>
 
 
-<h3>Accounts</h3>
+<h3>Cuentas re-stream</h3>
 
 <ul>
 <% if #accounts == 0 then %>
-<li>No connected accounts</li>
+<li>No hay cuentas conectadas, agregue aqui su cuenta Facebook Live, Youtube Live, otros en RTMP</li>
 <% else %>
 <% for k,v in pairs(accounts) do %>
 <% if v.network then %>
@@ -39,7 +34,7 @@
 <ul>
 
 <% if networks[v.network].create_form and not v.shared then %>
-<li><a href="<%= url_for('account-'..networks[v.network].name) %>/<%= v.id %>">Edit</a></li>
+<li><a href="<%= url_for('account-'..networks[v.network].name) %>/<%= v.id %>">Editar</a></li>
 <% end %>
 
 <li><a href="<%= url_for('account-delete',{id = v.id}) %>"><%= v.shared and 'Remove' or 'Delete'%></a></li>
@@ -56,9 +51,9 @@
 
 <% for k,v in networks() do %>
 <% if v.get_oauth_url then %>
-<li>Add New <a href="<%= v.get_oauth_url(user) %>"><%= v.displayname %></a></li>
+<li>Agregar <a href="<%= v.get_oauth_url(user) %>"><%= v.displayname %></a></li>
 <% else %>
-<li>Add New <a href="<%= url_for('account-'..v.name) %>"><%= v.displayname %></a></li>
+<li>Agregar <a href="<%= url_for('account-'..v.name) %>"><%= v.displayname %></a></li>
 <% end %>
 <% end %>
 
