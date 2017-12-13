@@ -3,28 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>iblups - restream</title>
-  <link rel="stylesheet" href="<%= url_for("site-root") %>static/css/pure-min.css">
+  <title>multistreamer</title>
+  <link rel="stylesheet" href="<%= url_for("site-root") %>static/css/bootstrap.css">
   <link rel="stylesheet" href="<%= url_for("site-root") %>static/css/multistreamer.css">
 </head>
 <body>
   <div class="pure-g header">
   <div class="pure-u-1 title">
-  <h1><a href="<%= url_for("site-root") %>">iblups - multistreamer</a></h1>
-  <p><% if user then %>Hola <%= user.username %> (<a href="<%= url_for('profile-edit',{ id = user.id })%>">Perfil</a>) (<a href="<%= url_for('logout') %>">Salir</a>)<% end %></p>
-  </div>
-  </div>
-  <div class="wrapper">
-<% if status_msg then %>
-<div class="msg msg-<%= status_msg.type%>">
-<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-<%= status_msg.msg %>
-</div>
-<% end %>
+  <h1><a href="">multistreamer</a></h1>
 
-    <% content_for('inner') %>
+  <p>
+
+   
+
+
+  </p>
   </div>
+  </div>
+
+
+
 </body>
 </html>
 
+
+
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>iblups - multistream</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="<%= url_for("site-root") %>static/css/bootstrap.css">
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="<%= url_for("site-root") %>static/css/1.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="<%= url_for("site-root") %>">iblups</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item">
+            <a class="nav-link" href="#"> <% if user then %>Logged in as <%= user.username %> (<a href="<%= url_for('profile-edit',{ id = user.id })%>">Profile</a>) (<a href="<%= url_for('logout') %>">Logout</a>)<% end %></a>
+          </li>
+
+
+        </ul>
+
+      </div>
+    </nav>
+
+    <div class="container">
+      <% if status_msg then %>
+      <div class="msg msg-<%= status_msg.type%>">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      <%= status_msg.msg %>
+      </div>
+      <% end %>
+
+          <% content_for('inner') %>
+    </div>
+    <!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="<%= url_for("site-root") %>static/js/bootstrap.min.js"></script>
+  </body>
+</html>
 
