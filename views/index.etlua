@@ -1,7 +1,7 @@
 <h3>Streams</h3>
 <ul>
 <% if #streams == 0 then %>
-<li><p>No streams created</p></li>
+<li><a href="<%= url_for('stream-edit')%>">Create new stream</a></li>
 <% else %>
 <% for k,v in pairs(streams) do %>
 <li class="<%= v.live and 'live' or 'offline' %>"><%= v.name %><% if v.shared then %> (Shared by <%= v.shared_from %>)<% end %>:
@@ -20,7 +20,7 @@
   </ul></li>
 <% end %>
 <% end %>
-<li><a href="<%= url_for('stream-edit')%>">Create new stream</a></li>
+
 </ul>
 
 
