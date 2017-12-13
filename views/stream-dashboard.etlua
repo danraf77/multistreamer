@@ -1,6 +1,6 @@
 <script src="<%= url_for('site-root') %>static/js/hls.min.js"></script>
 <h3><%= stream.name %></h3>
-
+<p>ID:78<%= stream.uuid %></p>
 <% render('views.stream-menu', { active_submenu = 'dashboard' }) %>
 
 
@@ -33,6 +33,7 @@
 </div>
 <% end %>
 </div>
+
 </fieldset>
 
 

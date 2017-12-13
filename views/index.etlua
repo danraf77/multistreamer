@@ -39,9 +39,7 @@
 
 <li><a href="<%= url_for('account-delete',{id = v.id}) %>"><%= v.shared and 'Remove' or 'Delete'%></a></li>
 
-<% if not v.shared and networks[v.network].allow_sharing then %>
-<li><a href="<%= url_for('account-share',{id = v.id}) %>">Share</a></li>
-<% end %>
+
 </ul>
 </li>
 
