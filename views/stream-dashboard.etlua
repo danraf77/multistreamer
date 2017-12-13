@@ -38,58 +38,6 @@
 
 
 
-
-
-
-<% for _,account in pairs(stream_accounts) do %>
-<fieldset><legend><%= account.name %> (<%= networks[account.network].displayname %>) Settings</legend>
-<% local metadata_form, err = networks[account.network].metadata_form(account:get_keystore(),stream:get_stream_account(account):get_keystore()) %>
-
-<% if err then %>
-<p>Error loading form for this account. Error: <%= err %></p>
-<% elseif metadata_form then %>
-<% for i,v in ipairs(metadata_form) do %>
-<div class="pure-control-group"><label for="<%= v.key %>.<%= account.id %>"><%= v.label %><%= v.required and ' *' or '' %></label>
-
-<% if v.type == 'text' then %>
-<input type="text" id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <% if v.value then %>value="<%= v.value %>"<% end %> <%= metadata_level < 2 and 'readonly' or ''%> />
-
-<% elseif v.type == 'textarea' then %>
-<textarea id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>><%= v.value ~= nil and v.value or '' %></textarea>
-
-<% elseif v.type == 'select' then %>
-<select id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>>
-<option value="" disabled <% if not v.value then %>selected<% end %>>Select</option>
-<% for i,o in ipairs(v.options) do %>
-<option value="<%= o.value %>" <%= o.value == v.value and 'selected' or '' %>><%= o.label %></option>
-<% end %>
-</select>
-
-<% elseif v.type == 'checkbox' then %>
-<input <%= v.value and 'checked ' or ''%>type="checkbox" id="<%= v.key %>.<%= account.id %>" name="<%= v.key %>.<%= account.id %>" <%= metadata_level < 2 and 'readonly' or '' %>>
-<% end %>
-</div>
-<% end %>
-
-<% else %>
-<p>No settings for this account</o>
-<% end %>
-
-<% if config.allow_transcoding then %>
-<% local ffmpeg_args = stream:get_stream_account(account).ffmpeg_args %>
-<div class="pure-control-group"><label for="ffmpeg_args.<%= account.id %>">FFMPEG Args (blank for default)</label>
-<input type="text" id="ffmpeg_args.<%= account.id %>" name="ffmpeg_args.<%= account.id %>" <% if ffmpeg_args then %>value="<%= ffmpeg_args %>" <% end %> <%= metadata_level < 2 and 'readonly' or '' %> />
-</div>
-<% end %>
-
-</fieldset>
-<% end %>
-
-<% if metadata_level == 2 then %>
-<div class="pure-controls">
-<button class="pure-button pure-button-primary" type="submit" id="submitBtn" name="submitBtn">Submit</button>
-</div>
-<% end %>
 </form>
 
 <script type="text/javascript">
