@@ -6,10 +6,6 @@ no to being bought a beer!
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NNKN85X52NEP6)
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=jprjr&url=https://github.com/jprjr/multistreamer&title=multistreamer&language=en_GB&tags=github&category=software)
 
-If you want to get this up and running quickly, check out my Docker
-image - https://github.com/jprjr/docker-multistreamer and its corresponding
-video - https://youtu.be/HdDDtBOLme4
-
 This is a tool for simulcasting RTMP streams to multiple services:
 
 * [Mixer](https://github.com/jprjr/multistreamer/wiki/Mixer)
@@ -50,9 +46,9 @@ service's Terms of Service via simulcasting.
 
 Here's some guides on installing/using:
 
-* [My User Guide](https://github.com/jprjr/multistreamer/wiki/User-Guide)
+* [My user guide](https://github.com/jprjr/multistreamer/wiki/User-Guide)
 * [A short intro video](https://youtu.be/NBNLqaUn9mA)
-* [A in-depth tutorial for users](https://youtu.be/Uz2vXppsMIw)
+* [A in-depth tutorial for users](https://youtu.be/j89dP0XetCk)
 * [Installing multistreamer with Docker](https://youtu.be/HdDDtBOLme4)
 * [Installing multistreamer without Docker](https://youtu.be/Wr4CD6RU_CU)
 
@@ -61,8 +57,8 @@ Here's some guides on installing/using:
 * [Requirements](#requirements)
 * [Installation](#installation)
   + [Install with Docker](#install-with-docker)
-  + [Install OpenResty with `setup-openresty`](#install-openresty-with-setup-openresty)
-  + [Alternative: Install OpenResty with RTMP Manually](#alternative-install-openresty-with-rtmp-manually)
+  + [Install OpenResty with RTMP](#install-openresty-with-rtmp)
+  + [Alternative: Install nginx with Lua and rtmp](#alternative-install-nginx-with-lua-and-rtmp)
   + [Setup database and user in Postgres](#setup-database-and-user-in-postgres)
   + [Setup Redis](#setup-redis)
   + [Setup Sockexec](#setup-sockexec)
@@ -85,19 +81,18 @@ Here's some guides on installing/using:
 
 ## Requirements
 
-* [OpenResty](https://openresty.org/en/) with some extra modules:
+* nginx/OpenResty with some modules:
   * [nginx-rtmp-module](https://github.com/arut/nginx-rtmp-module)
+  * [lua-nginx-module](https://github.com/openresty/lua-nginx-module)
   * [stream-lua-nginx-module](https://github.com/openresty/stream-lua-nginx-module)
+  * note: the default OpenResty bundle does not include the rtmp module or the
+    TCP lua module - these can be be added with `--add-module`, see
+    [http://openresty.org/en/installation.html](http://openresty.org/en/installation.html)
 * ffmpeg
 * lua 5.1
-* luarocks
 * luajit (included with OpenResty)
-* a POSIX shell (bash, ash, dash, etc)
-
-Note you specifically need OpenResty for this. I no longer support or recommend
-compiling a custom Nginx with the Lua module, you'll need the OpenResty
-distribution, which includes Lua modules like `lua-resty-websocket`,
-`lua-resty-redis`, `lua-resty-lock`, and so on.
+* luarocks
+* (optional) bash
 
 ## Installation
 
@@ -107,79 +102,68 @@ I have a Docker image available, along with a docker-compose file for
 quickly getting up and running. Instructions are available here:
 https://github.com/jprjr/docker-multistreamer
 
-### Install OpenResty with `setup-openresty`
+### Install OpenResty with RTMP
 
-I've written a script for setting up OpenResty and LuaRocks: https://github.com/jprjr/setup-openresty
-
-This is now my preferred way for setting up OpenResty. It automatically
-installs build pre-requisites for a good number of distros, and installs
-Lua 5.1.5 in addition to LuaJIT. This allows LuaRocks to build C modules
-that no longer build against LuaJIT (like cjson).
-
-To install, simply:
+You don't explicitly need OpenResty - it's just convenient because it already
+includes the Lua module (and the Lua module's requirements).
 
 ```bash
-git clone https://github.com/jprjr/setup-openresty
-cd setup-openresty
-sudo ./setup-openresty
-  --prefix=/opt/openresty-rtmp \
-  --with-rtmp \
-  --with-stream \
-  --with-stream-ssl \
-  --with-stream-lua
-```
-
-### Alternative: Install OpenResty with RTMP Manually
-
-You'll want to install Lua 5.1.5 as well, so that LuaRocks can build older
-C modules. I have a patch in this repo for building `liblua` as a dynamic
-library, just in case some C module tries to link against `liblua` for
-some reason.
-
-```bash
-sudo apt-get -y install \
-  libreadline-dev \
-  libncurses5-dev \
-  libpcre3-dev \
-  libssl-dev \
-  perl \
-  make \
-  build-essential \
-  unzip \
-  curl \
-  git
+sudo apt-get install libreadline-dev libncurses5-dev libpcre3-dev \
+    libssl-dev perl make build-essential unzip curl git
 mkdir openresty-build && cd openresty-build
-curl -R -L https://openresty.org/download/openresty-1.11.2.5.tar.gz | tar xz
-curl -R -L https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz | tar xz
-curl -R -L https://github.com/openresty/stream-lua-nginx-module/archive/a3a050bfacfb8d097ee276380c4e606031f2aaf2.tar.gz | tar xz
+curl -R -L https://openresty.org/download/openresty-1.11.2.2.tar.gz | tar xz
+curl -R -L https://github.com/arut/nginx-rtmp-module/archive/v1.1.10.tar.gz | tar xz
+curl -R -L https://github.com/openresty/stream-lua-nginx-module/archive/e527417c5d04da0c26c12cf4d8a0ef0f1e36e051.tar.gz | tar xz
 curl -R -L http://luarocks.github.io/luarocks/releases/luarocks-2.4.2.tar.gz | tar xz
-curl -R -L https://www.lua.org/ftp/lua-5.1.5.tar.gz | tar xz
-
-cd openresty-1.11.2.5
+cd openresty-1.11.2.2
 ./configure \
   --prefix=/opt/openresty-rtmp \
   --with-pcre-jit \
   --with-ipv6 \
   --with-stream \
   --with-stream_ssl_module \
-  --add-module=../nginx-rtmp-module-1.2.0 \
-  --add-module=../stream-lua-nginx-module-a3a050bfacfb8d097ee276380c4e606031f2aaf2
+  --add-module=../nginx-rtmp-module-1.1.10 \
+  --add-module=../stream-lua-nginx-module-e527417c5d04da0c26c12cf4d8a0ef0f1e36e051
 make
 sudo make install
-
-cd ../lua-5.1.5
-patch -p1 < /path/to/lua-5.1.5.patch # in this repo under misc
-sed -e 's,/usr/local,/opt/openresty-rtmp,g' -i src/luaconf.h
-make CFLAGS="-fPIC -O2 -Wall -DLUA_USE_LINUX" linux
-sudo make INSTALL_TOP="/opt/openresty-rtmp/luajit" TO_LIB="liblua.a liblua.so" install
-
 cd ../luarocks-2.4.2
 ./configure \
   --prefix=/opt/openresty-rtmp \
   --with-lua=/opt/openresty-rtmp/luajit \
-  --rocks-tree=/opt/openresty-rtmp/luajit
-make build
-sudo make bootstrap
+  --lua-suffix=jit \
+  --with-lua-include=/opt/openresty-rtmp/luajit/include/luajit-2.1
+```
+
+### Alternative: Install nginx with Lua and rtmp
+
+Here's a short script to download nginx and install it to `/opt/nginx-rtmp`
+
+```bash
+mkdir nginx-build && cd nginx-build
+curl -R -L http://nginx.org/download/nginx-1.10.2.tar.gz | tar xz
+curl -R -L https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz | tar xz
+curl -R -L https://github.com/openresty/lua-nginx-module/archive/v0.10.7.tar.gz | tar xz
+curl -R -L https://github.com/arut/nginx-rtmp-module/archive/v1.1.10.tar.gz | tar xz
+curl -R -L https://github.com/openresty/stream-lua-nginx-module/archive/e527417c5d04da0c26c12cf4d8a0ef0f1e36e051.tar.gz | tar xz
+cd nginx-1.10.2
+export LUAJIT_LIB=$(pkg-config --variable=libdir luajit)
+export LUAJIT_INC=$(pkg-config --variable=includedir luajit)
+./configure \
+  --prefix=/opt/nginx-rtmp \
+  --with-threads \
+  --with-file-aio \
+  --with-ipv6 \
+  --with-http_ssl_module \
+  --with-pcre \
+  --with-pcre-jit \
+  --with-stream \
+  --with-stream_ssl_module \
+  --add-module=../ngx_devel_kit-0.3.0 \
+  --add-module=../lua-nginx-module-0.10.7 \
+  --add-module=../nginx-rtmp-module-1.1.10 \
+  --add-module=../stream-lua-nginx-module-e527417c5d04da0c26c12cf4d8a0ef0f1e36e051
+make
+sudo make install
 ```
 
 ### Setup database and user in Postgres
@@ -286,50 +270,67 @@ You'll need some Lua modules installed:
 
 * lua-resty-exec
 * lua-resty-jit-uuid
+* lua-resty-string
 * lua-resty-http
+* lua-resty-upload
 * lapis
 * etlua
 * luaposix
 * luafilesystem
 * whereami
 
-#### Installing locally
+Note: `lapis` depends on `lua-cjson`, and as of this writing, `lua-cjson`
+fails to compile if you build the module against LuaJIT-2.1 (the default
+with OpenResty).
 
-If you install modules to a folder named `lua_modules`, the  bash script (`./bin/multistreamer`)
+I recommend using a LuaRocks that defaults to using Lua 5.1, since modules
+for Lua 5.1 work in LuaJIT.
+
+If you install modules to a folder named `lua_modules`, the  bash script will
 setup nginx/Lua to only use that folder. So, assuming you're still in
 the `multistreamer` folder:
 
 ```bash
-/opt/openresty-rtmp/bin/luarocks install --tree=lua_modules --only-deps rockspecs/multistreamer-dev-1.rockspec
+luarocks --tree=lua_modules install lua-resty-exec
+luarocks --tree=lua_modules install lua-resty-jit-uuid
+luarocks --tree=lua_modules install lua-resty-string
+luarocks --tree=lua_modules install lua-resty-http
+luarocks --tree=lua_modules install lua-resty-upload
+luarocks --tree=lua_modules install lapis
+luarocks --tree=lua_modules install etlua
+luarocks --tree=lua_modules install luaposix
+luarocks --tree=lua_modules install luafilesystem
+luarocks --tree=lua_modules install whereami
 ```
-
 
 **Note**: older verions of LuaRocks might not automatically install dependencies.
 Here's the full list of modules, including dependencies:
 
 ```
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install bit32
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lua-cjson
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install date
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luacrypto
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install ansicolors
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lpeg
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install etlua
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install loadkit
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luafilesystem
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install mimetypes
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luasocket
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luabitop
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install pgmoon
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install netstring
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lua-resty-exec
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lua-resty-jit-uuid
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lua-resty-http
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install lapis
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install etlua
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luaposix
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install luafilesystem
-/opt/openresty-rtmp/bin/luarocks --tree=lua_modules install whereami
+luarocks --tree=lua_modules install bit32
+luarocks --tree=lua_modules install lua-cjson
+luarocks --tree=lua_modules install date
+luarocks --tree=lua_modules install luacrypto
+luarocks --tree=lua_modules install ansicolors
+luarocks --tree=lua_modules install lpeg
+luarocks --tree=lua_modules install etlua
+luarocks --tree=lua_modules install loadkit
+luarocks --tree=lua_modules install luafilesystem
+luarocks --tree=lua_modules install mimetypes
+luarocks --tree=lua_modules install luasocket
+luarocks --tree=lua_modules install luabitop
+luarocks --tree=lua_modules install pgmoon
+luarocks --tree=lua_modules install netstring
+luarocks --tree=lua_modules install lua-resty-exec
+luarocks --tree=lua_modules install lua-resty-jit-uuid
+luarocks --tree=lua_modules install lua-resty-string
+luarocks --tree=lua_modules install lua-resty-http
+luarocks --tree=lua_modules install lua-resty-upload
+luarocks --tree=lua_modules install lapis
+luarocks --tree=lua_modules install etlua
+luarocks --tree=lua_modules install luaposix
+luarocks --tree=lua_modules install luafilesystem
+luarocks --tree=lua_modules install whereami
 ```
 
 Using Mac OS? `lapis` will probably fail to install because `luacrypto`
@@ -536,5 +537,5 @@ I'll be honest, I'm not sure how trademark law applies here (but I'm sure it doe
 so I feel obligated to mention that all trademarked images are property of their
 respective companies.
 
-The network module for Mixer uses an embedded SVG icon from [mixer-branding-kit](https://github.com/mixer/branding-kit),
-it is property of [Mixer](https://mixer.com).
+The network module for Beam uses an embedded SVG icon from [beam-branding-kit](https://github.com/WatchBeam/beam-branding-kit),
+it is property of [Beam](https://beam.pro).

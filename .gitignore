@@ -1,0 +1,6 @@
+/config.lua
+/lua_modules
+/static/favicon.ico
+/.lua-version
+*.swp
+/local/

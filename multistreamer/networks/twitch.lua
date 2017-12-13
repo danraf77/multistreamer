@@ -318,11 +318,7 @@ end
 
 local function emojify(message,emotes)
   local msgTable = to_table(message)
-  if not emotes then
-    emotes = {}
-  else
-    emotes = split(emotes,'/')
-  end
+  emotes = split(emotes,'/')
   for _,v in ipairs(emotes) do
     local t = find(v,':')
     if t then
@@ -410,7 +406,6 @@ function M.create_comment_funcs(account, stream, send)
   local channel = '#' .. stream.channel:lower()
   local icons = {}
   local tclient = twitch_api_client()
-  local my_user_id
 
   local function irc_connect()
     local ok, err
@@ -433,25 +428,6 @@ function M.create_comment_funcs(account, stream, send)
     return true, nil
   end
 
-  local function getIcon(userid)
-    if icons[userid] == nil then
-      local icon_res = tclient:get('/users/' .. userid, nil, {
-        ['Client-ID'] = twitch_config.client_id,
-      })
-      if icon_res then
-        icons[userid] = icon_res.logo
-      end
-    end
-    return icons[userid]
-  end
-
-  if send then
-    local tclient_temp = twitch_api_client(account['token'])
-    local user_info = tclient_temp:get('/user/')
-    my_user_id = user_info._id
-    icons[my_user_id] = user_info.logo
-  end
-
   local function sendMsg(event,data)
     local msg = {
       from = {
@@ -465,7 +441,16 @@ function M.create_comment_funcs(account, stream, send)
       msg.from.name = data.from.nick
     end
 
-    msg.from.picture = getIcon(msg.from.id)
+    if icons[msg.from.id] == nil then
+      local icon_res = tclient:get('/users/' .. msg.from.id, nil, {
+        ['Client-ID'] = twitch_config.client_id,
+      })
+      if icon_res then
+        icons[msg.from.id] = icon_res.logo
+      end
+    end
+
+    msg.from.picture = icons[msg.from.id]
 
     if data.to == nick then
       msg.to = {
@@ -532,7 +517,6 @@ function M.create_comment_funcs(account, stream, send)
       local msg = {
         from = {
           name = account.channel,
-          picture = getIcon(my_user_id),
         },
         text = message.text,
         markdown = escape_markdown(message.text),

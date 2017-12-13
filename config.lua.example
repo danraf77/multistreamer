@@ -24,7 +24,7 @@ config({'development','production'}, {
   rtmp_prefix = 'multistreamer',
 
   -- path to your nginx+lua+rtmp binary
-  nginx = '/opt/openresty/nginx/sbin/nginx',
+  nginx = '/usr/sbin/nginx',
 
   -- path to psql
   psql = '/usr/bin/psql',
@@ -97,13 +97,13 @@ config({'development','production'}, {
 
   -- nginx rtmp "listen" directive, see
   -- https://github.com/arut/nginx-rtmp-module/wiki/Directives#listen
-  -- default: listen on all ipv6+ipv4 addresses
-  rtmp_listen = '[::]:1935 ipv6only=off',
+  -- default: listen on all ipv6 addresses (which includes all ipv4 addresses, too)
+  rtmp_listen = '[::]:1935'',
 
   -- nginx irc "listen" directive, see
   -- https://nginx.org/en/docs/stream/ngx_stream_core_module.html#listen
-  -- default: listen on all ipv6+ipv4 addresses
-  irc_listen = '[::]:6667 ipv6only=off',
+  -- default: listen on all ipv6 addresses (which includes all ipv4 addresses, too)
+  irc_listen = '[::]:6667',
 
   -- set the IRC hostname reported by the server
   irc_hostname = 'localhost',
@@ -149,7 +149,7 @@ config({'development','production'}, {
 
   -- set the path to sockexec's socket
   -- see https://github.com/jprjr/sockexec for installation details
-  sockexec_path = '/tmp/exec.sock',
+  -- sockexec_path = '/tmp/exec.sock',
 
   -- allow/disallow transcoding (default: true)
   -- allow_transcoding = true,

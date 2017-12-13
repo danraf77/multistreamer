@@ -137,10 +137,7 @@ app:match('stream-edit', config.http_prefix .. '/stream(/:id)', respond_to({
 
       self.stream_accounts = {}
       for _,v in pairs(self.stream:get_streams_accounts()) do
-        local sa = v:get_account()
-        if networks[sa.network] then
-          insert(self.stream_accounts, sa)
-        end
+        insert(self.stream_accounts,v:get_account())
       end
 
       self.metadata_level = self.stream:check_meta(self.user)
@@ -214,9 +211,7 @@ app:match('stream-edit', config.http_prefix .. '/stream(/:id)', respond_to({
     local acc = self.user:get_accounts()
     if not acc then acc = {} end
     for _,account in pairs(acc) do
-      if networks[account.network] then
-        insert(self.accounts,account)
-      end
+      insert(self.accounts,account)
     end
 
     local sas = self.user:get_shared_accounts()
@@ -225,9 +220,7 @@ app:match('stream-edit', config.http_prefix .. '/stream(/:id)', respond_to({
       local u = account:get_user()
       account.shared = true
       account.shared_from = u.username
-      if networks[account.network] then
-        insert(self.accounts,account)
-      end
+      insert(self.accounts,account)
     end
     sort(self.accounts, sort_accounts)
     sort(self.stream_accounts, sort_accounts)
@@ -482,33 +475,21 @@ app:match('stream-edit', config.http_prefix .. '/stream(/:id)', respond_to({
         for _,field in pairs(metadata_fields) do
           local v = self.params[field.key .. '.' .. account.id]
           -- normalize checkbox to true/false
-          if field.type == 'checkbox' then
-            if v and len(v) > 0 then
+          if v and len(v) > 0 then
+            if field.type == 'checkbox' then
               v = true
-            else
-              v = false
+              if sa_keys[field.key] ~= nil then
+                sa_keys[field.key] = true
+              end
             end
-            if sa_keys[field.key] == 'true' then
-              sa_keys[field.key] = true
-            elseif sa_keys[field.key] == 'false' then
-              sa_keys[field.key] = false
-            else
-              sa_keys[field.key] = nil
-            end
-          else
-            if not v or len(v) == 0 then
-              v = nil
-            end
-          end
 
-          if v == nil then
-            if sa_keys[field.key] ~= nil then
-              sa:unset(field.key)
+            if sa_keys[field.key] ~= v then
+              sa:set(field.key,v)
               stream_updated = true
             end
           else
-            if sa_keys[field.key] ~= v then
-              sa:set(field.key,v)
+            if sa_keys[field.key] ~= nil then
+              sa:unset(field.key)
               stream_updated = true
             end
           end
@@ -814,29 +795,23 @@ app:get('site-root', config.http_prefix .. '/', function(self)
     return { redirect_to = 'login' }
   end
 
-  self.accounts = {}
+  self.accounts = self.user:get_accounts()
   self.streams = self.user:get_streams()
-  local accounts = self.user:get_accounts()
-
-  if not accounts then accounts = {} end
+  if not self.accounts then self.accounts = {} end
   if not self.streams then self.streams = {} end
 
   local sas = self.user:get_shared_accounts()
 
   for _,sa in pairs(sas) do
     local account = sa:get_account()
-    if networks[account.network] then
-      local u = account:get_user()
-      account.shared = true
-      account.shared_from = u.username
-      insert(self.accounts,account)
-    end
+    local u = account:get_user()
+    account.shared = true
+    account.shared_from = u.username
+    insert(self.accounts,account)
   end
-
-  for _,v in pairs(accounts) do
+  for _,v in pairs(self.accounts) do
     if networks[v.network] then
       v.errors = networks[v.network].check_errors(v:get_keystore())
-      insert(self.accounts,v)
     end
   end
 
